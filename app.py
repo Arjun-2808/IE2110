@@ -1,148 +1,144 @@
 import streamlit as st
 
-# ────────────────────────────────────────────────────────────────────────────────
-# IE2110 Exam-Focused Cheat-Sheet
-# Minimal theory; only high-leverage hacks + detailed past-paper examples
-# Streamlit 1.30+; uses only st.latex and raw st.markdown
-# ────────────────────────────────────────────────────────────────────────────────
+"""
+IE2110 • Signals & Systems — Comprehensive Exam Cheat-Sheet
+Includes essential theory from slides + high-impact hacks + worked examples.
+Streamlit 1.30+ only. All math via st.latex in raw strings.
+"""
+# Must be first
+st.set_page_config(page_title="IE2110 Comprehensive Cheat-Sheet", layout="wide")
 
-# Must be the first Streamlit command
-st.set_page_config(page_title="IE2110 Exam Hacks", layout="wide")
+st.title("IE2110 · Signals & Systems — Comprehensive Exam Cheat-Sheet")
 
-# Title
-st.title("IE2110 · Signals & Systems — Exam-Focused Hacks")
-
-# Sidebar navigation
-section = st.sidebar.selectbox(
-    "Navigate to topic:",
+# Improved sidebar navigation
+section = st.sidebar.radio(
+    "Choose Section:",
     [
-        "1. Convolution (Past-Paper Q3)",
-        "2. Fourier Mag & Phase (Past-Paper Q4)",
-        "3. Sampling & Aliasing (Past-Paper Q5)",
-        "4. LTI System Tests (Past-Paper Q2)",
-        "5. Amplitude Modulation (Past-Paper Q6)"
+        "1. Signal Classification",
+        "2. Elementary & Operations",
+        "3. LTI Systems Theory",
+        "4. Fourier & Line Spectra",
+        "5. Sampling & Aliasing",
+        "6. Modulation & Demodulation"
     ]
 )
 
-# Horizontal rule HTML snippet
+# Horizontal rule
 hr = "<hr style='margin:1em 0'>"
 
-# ────────────────────────────────────────────────────────────────────────────────
-# 1. Convolution — Past-Paper Q3
-# ────────────────────────────────────────────────────────────────────────────────
-if section.startswith("1"):
-    st.header("1. Convolution — Past-Paper Q3")
-    st.latex(r"y(t)=\int_{-\infty}^{\infty}x(\tau)\,h(t-\tau)\,d\tau")
+# 1. Signal Classification
+if section == "1. Signal Classification":
+    st.header("1. Signal Classification")
+
+    st.subheader("Continuous vs Discrete Time")
+    st.latex(r"""x(t)\quad(t\in\mathbb R)
+\quad\text{vs}\quad x[n]\quad(n\in\mathbb Z)""")
     st.markdown(r"""
-**🔑 Core Formula**
+**Theory:** Continuous-time signals defined ∀ real t; discrete-time only at integer n.  
+**Hack:** Parentheses vs brackets notation.  
+**Example:** x[n]={1,2,3} only at n=0,1,2 ⇒ discrete-time.
+""", unsafe_allow_html=True)
+    st.markdown(hr, unsafe_allow_html=True)
 
-Flip the impulse response h, shift by t, multiply with x, integrate over overlap.
-
-**⚡ Speed Hack**
-1. Draw supports: [a,b] for x, [c,d] for h.  
-2. Overlap for output non-zero: t ∈ [a+c, b+d].  
-3. For simple shapes (rectangles, triangles), compute output amplitude via base×height formulas instead of full integral.
-
-**🛠️ Worked Example**
-**Past-Paper Q3:**
-Let x(t)=u(t)-u(t-1), h(t)=u(t)-u(t-2). Sketch y(t)=x*h.
-
-Piecewise result:
-- 0≤t<1: overlap length = t ⇒ y(t)=t
-- 1≤t<2: full 1s overlap ⇒ y(t)=1
-- 2≤t<3: overlap length = 3−t ⇒ y(t)=3−t
-- otherwise y(t)=0
+    st.subheader("Even & Odd Decomposition")
+    st.latex(r"""x_e(t)=\tfrac12[x(t)+x(-t)],
+\quad x_o(t)=\tfrac12[x(t)-x(-t)]""")
+    st.markdown(r"""
+**Theory:** Any x(t)=x_e(t)+x_o(t).  
+**Hack:** ∫_{-T}^{T} x_o(t) dt = 0.  
+**Example:** t^3 cos t odd ⇒ zero symmetric integral.
 """, unsafe_allow_html=True)
 
-# ────────────────────────────────────────────────────────────────────────────────
-# 2. Fourier Magnitude & Phase — Past-Paper Q4
-# ────────────────────────────────────────────────────────────────────────────────
-elif section.startswith("2"):
-    st.header("2. Fourier Magnitude & Phase — Past-Paper Q4")
-    st.latex(r"X(f)=\int_{-\infty}^{\infty}x(t)e^{-j2\pi f t}dt")
+# 2. Elementary & Operations
+elif section == "2. Elementary & Operations":
+    st.header("2. Elementary Signals & Operations")
+
+    st.subheader("Basic Signals")
     st.markdown(r"""
-**🔑 Key Rules**
-- Real even x(t) ⇒ X(f) real & even; phase = 0 or π.
-- Real odd x(t) ⇒ X(f) imaginary & odd; phase = ±π/2.
-- Time shift t0 ⇒ multiply spectrum by e^{−j2πft0} (linear phase).
-
-**⚡ Sketch Hack**
-Decompose x(t) into elementary shapes: rect, tri, impulses. Use known transforms and apply time shifts/multiplications.
-
-**🛠️ Worked Example**
-**Past-Paper Q4:**
-$$x(t)=\operatorname{rect}(t/2)+\operatorname{rect}((t-3)/2).$$
-Then:
-$$X(f)=2\,\mathrm{sinc}(2f)e^{-j3\pi f}\cos(3\pi f).$$
-- Magnitude: |X(f)| = 2 |\mathrm{sinc}(2f)| · |\cos(3πf)|.  
-- Phase: arg X = −3πf + arg[cos(3πf)] (0 or π inside lobes).
+• **Unit Impulse:** δ(t), ∫δ(t)dt=1, δ(t−t0) sampling.  
+• **Step:** u(t)=1(t≥0), derivative = δ(t).  
+• **Rectangular/Pulse:** rect(t/T)=u(t+T/2)−u(t−T/2).  
 """, unsafe_allow_html=True)
 
-# ────────────────────────────────────────────────────────────────────────────────
-# 3. Sampling & Aliasing — Past-Paper Q5
-# ────────────────────────────────────────────────────────────────────────────────
-elif section.startswith("3"):
-    st.header("3. Sampling & Aliasing — Past-Paper Q5")
-    st.latex(r"x_s(t)=x(t)\sum_{n=-\infty}^{\infty}\delta(t-nT_s),\quad f_s=1/T_s")
+    st.subheader("Common Operations")
     st.markdown(r"""
-**🔑 Spectrum Replication**
-$$X_s(f)=\frac1{T_s}\sum_{k=-\infty}^{\infty}X(f - kf_s).$$
-Spectral replicas at multiples of f_s.
-
-**⚡ Nyquist Hack**
-f_s must satisfy f_s ≥ 2B to avoid aliasing.  
-Sketch center lobe ±B, then replicas at ±kf_s.
-
-**🛠️ Worked Example**
-**Past-Paper Q5:**
-Signal band-limited to B=5 kHz. Choose f_s=12 kHz.
-Draw X_s(f): central copy from −5 to +5 kHz, then copies centered at ±12, ±24 kHz.
-""", unsafe_allow_html=True)
-
-# ────────────────────────────────────────────────────────────────────────────────
-# 4. LTI System Tests — Past-Paper Q2
-# ────────────────────────────────────────────────────────────────────────────────
-elif section.startswith("4"):
-    st.header("4. LTI System Tests — Past-Paper Q2")
-    st.markdown(r"""
-**🔑 Quick Checklist**
-1. **Linearity**: superposition for two arbitrary inputs.
-2. **Time-Invariance**: shift input ⇒ same shift in output.
-3. **Causality**: h(t)=0 for t<0.
-4. **BIBO Stability**: ∫|h(t)|dt<∞ (CT) or ∑|h[n]|<∞ (DT).
-5. **Memoryless**: depends only on x(t), not delayed samples.
+• **Time Shift:** y(t)=x(t−t0) ⇒ X(f)e^{-j2π f t0}.  
+• **Scaling:** y(t)=x(at) ⇒ (1/|a|)X(f/a).  
+• **Amplitude:** y(t)=A x(t).  
 """, unsafe_allow_html=True)
     st.markdown(r"""
-**🛠️ Worked Example**
-**Past-Paper Q2:**
-$$y(t)=3x(t) - 2\frac{d}{dt}x(t) + x(t-1).$$
-- Linearity: Yes.  
-- Time-Invariance: Yes.  
-- Causality: Yes (x(t-1) uses past).  
-- Stability: Differentiation amplifies high-frequency noise ⇒ not BIBO stable.
+**Example Hack:** For shift + scale, plot support endpoints and transform accordingly.
 """, unsafe_allow_html=True)
 
-# ────────────────────────────────────────────────────────────────────────────────
-# 5. Amplitude Modulation — Past-Paper Q6
-# ────────────────────────────────────────────────────────────────────────────────
+# 3. LTI Systems Theory
+elif section == "3. LTI Systems Theory":
+    st.header("3. Linear Time-Invariant (LTI) Systems")
+
+    st.subheader("Impulse Response & Convolution")
+    st.latex(r"y(t)=x(t)*h(t)=\int_{-\infty}^{\infty}x(τ)h(t−τ)dτ")
+    st.markdown(r"""
+**Theory:** Impulse response h(t) fully characterizes LTI.  
+**Hack:** Identify supports of x/h, overlap region yields non-zero y(t).
+""", unsafe_allow_html=True)
+    st.markdown(hr, unsafe_allow_html=True)
+
+    st.subheader("System Properties")
+    st.markdown(r"""
+• **Stability:** ∫|h(t)|dt<∞.  
+• **Causality:** h(t)=0 for t<0.  
+• **Memoryless:** h(t)=k δ(t).  
+• **Linearity & Time-Invariance:** check superposition & shift invariance.
+""", unsafe_allow_html=True)
+
+# 4. Fourier & Line Spectra
+elif section == "4. Fourier & Line Spectra":
+    st.header("4. Fourier & Line Spectra")
+
+    st.subheader("Continuous-Time Fourier Transform")
+    st.latex(r"""X(f)=\int_{-\infty}^{\infty}x(t)e^{-j2πft}dt,
+\quad x(t)=\int_{-\infty}^{\infty}X(f)e^{j2πft}df""")
+    st.markdown(r"""
+**Key:** Real even/odd, shift, and modulation properties.  
+**Hack:** Use transform table: rect↔sinc, tri↔sinc^2, impulses for sinusoids.
+""", unsafe_allow_html=True)
+    st.markdown(hr, unsafe_allow_html=True)
+
+    st.subheader("Line Spectra (Periodic Signals)")
+    st.markdown(r"""
+Periodic x(t)=Σ a_k e^{j2πk f0 t} ⇒ discrete lines at k f0 with weights a_k.
+""", unsafe_allow_html=True)
+
+# 5. Sampling & Aliasing
+elif section == "5. Sampling & Aliasing":
+    st.header("5. Sampling & Aliasing")
+
+    st.subheader("Sampling Theorem")
+    st.latex(r"""x_s(t)=x(t)\sum_{n}δ(t−nT_s),
+\quad X_s(f)=\tfrac1{T_s}\sum_kX(f−k f_s)""")
+    st.markdown(r"""
+**Theory:** f_s≥2B avoids overlap.  Reconstruction via ideal LPF.  
+**Hack:** Sketch replicas spaced f_s apart; avoid alias region.
+""", unsafe_allow_html=True)
+
+# 6. Modulation & Demodulation
 else:
-    st.header("5. Amplitude Modulation — Past-Paper Q6")
-    st.latex(r"x_{AM}(t)=[1+\mu m(t)]\cos(2\pi f_c t),\quad \mu=\frac{\Delta A}{A_c}")
+    st.header("6. Modulation & Demodulation")
+
+    st.subheader("Amplitude Modulation (AM)")
+    st.latex(r"""x_{AM}(t)=[1+μ m(t)]cos(2πf_ct),
+\quad μ=k_a m_{max}""")
     st.markdown(r"""
-**🔑 Spectrum Layout**
-Carrier at ±f_c with amplitude A_c/2. Sidebands at f_c±f_m with amplitude (μA_c/4)·M.
-Bandwidth = 2B of m(t).
+**Theory:** Spectrum: carrier at ±f_c, sidebands at f_c±f_m.  BW=2B.  
+**Hack:** Envelope detector requires μ<1.  
+""", unsafe_allow_html=True)
+    st.markdown(hr, unsafe_allow_html=True)
 
-**⚡ Efficiency Hack**
-Power efficiency = μ²/(2+μ²). Maximum at μ=1 → 33.3%.
-
-**🛠️ Worked Example**
-**Past-Paper Q6:**
-$$m(t)=4\cos(2\pi 0.5t)+2\cos(2\pi1.5t), A_c=5, f_c=100\text{kHz}.$$  
-m_max=4+2=6 → choose μ=0.6.  
-Sidebands at 100±0.5 kHz & 100±1.5 kHz.
-Line amplitudes: (μA_c/2)*{4,2} = { (0.6*5/2)*4, (0.6*5/2)*2 } = {6,3 }.
+    st.subheader("Frequency/Phase Modulation (FM/PM)")
+    st.markdown(r"""
+• FM: f_inst = f_c + k_f m(t).  
+• PM: phase = k_p m(t).  
+**Hack:** FM spectrum via Bessel functions; use narrowband approx for small dev.
 """, unsafe_allow_html=True)
 
-# Footer info
-st.sidebar.success("All set for the exam — good luck!")
+# Footer
+st.sidebar.success("Ready for exam — best of luck!")
