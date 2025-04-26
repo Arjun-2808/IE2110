@@ -1,186 +1,131 @@
 import streamlit as st
 
-st.set_page_config(page_title="IE2110: Signals & Systems Revision", layout="wide")
+# Page configuration
+st.set_page_config(page_title="IE2110 Revision Cheat Sheet", layout="wide")
 
-st.title("IE2110: Signals & Systems — Detailed Revision Cheat Sheet")
+# Title
+st.title("IE2110: Signals & Systems — Detailed Revision Cheat Sheet & Hacks")
 
-# 1. Classification of Signals
+# Section 1: Classification of Signals
 st.header("1. Classification of Signals")
-st.markdown(
-    """
-| **Property**               | **Definition**                                                                 | **⚡Quick Tip**                |
-|----------------------------|--------------------------------------------------------------------------------|--------------------------------|
-| Continuous vs Discrete     | CT: $x(t)$ defined ∀ real $t$; DT: $x[n]$ defined on integer $n$               | Look at argument: `t` vs `[n]` |
-| Continuous vs Discrete Value | Amplitude ∈ ℝ vs amplitude ∈ finite set                                         | Smooth curve vs steps         |
-| Even vs Odd                | Even: $x(t)=x(-t)$; Odd: $x(t)=-x(-t)$                                          | Test $x(t)\pm x(-t)$          |
-| Periodic vs Aperiodic      | Periodic if ∃ $T_0>0$ s.t. $x(t)=x(t+T_0)$; else aperiodic                     | Sinusoids→periodic; decays→aperiodic |
-| Energy vs Power type       | Energy: $E_x=\int|x|^2dt<\infty$; Power: $P_x=\lim\frac1T\int|x|^2dt<\infty$ | Periodic→power; pulses→energy   |
-"""
+
+# Continuous vs Discrete
+st.subheader("1.1 Continuous vs Discrete Signals")
+st.write(
+    "**Definition:** CT uses $x(t)$ (continuous $t$), DT uses $x[n]$ (integer $n$)."
 )
+st.write("**Quick Tip:** Check argument: `t` ⇒ CT, `[n]` ⇒ DT.")
+st.write("⚡HACK: In MCQs, simply spot the variable type to categorize signal immediately.")
 
-st.markdown("""
-**Examples:**  
-- CT sinusoid $x(t)=\cos(2\pi f_0 t)$: periodic, power-type.  
-- Exponential $x(t)=e^{-at}$: aperiodic, energy-type.  
-
-**Diagnostic Flow:**  
-1. Argument: `t` vs `[n]`  
-2. Values: continuous vs discrete  
-3. Symmetry: even/odd test  
-4. Periodicity: find $T_0$  
-5. Compute energy or power  
-"""
+# Continuous vs Discrete Value
+st.subheader("1.2 Continuous‐Value vs Discrete‐Value Signals")
+st.write(
+    "**Definition:** Continuous‐value amplitude ∈ ℝ; discrete‐value has finite levels."
 )
+st.write("**Quick Tip:** Smooth curve ⇒ continuous; steps/dots ⇒ discrete.")
+st.write("⚡HACK: When given a quantized signal, assume discrete‐value by default.")
 
-# 2. Elementary & Singularity Signals
+# Even vs Odd
+st.subheader("1.3 Even vs Odd Signals")
+st.write(
+    "**Definition:** Even: $x(t)=x(-t)$; Odd: $x(t)=-x(-t)$."
+)
+st.write("**Test:** Compute $x(t) ± x(-t)$." )
+st.write("⚡HACK: For integrals, odd signals integrate to zero over symmetric limits—use to shortcut convolution/energy.")
+
+# Periodic vs Aperiodic
+st.subheader("1.4 Periodic vs Aperiodic Signals")
+st.write(
+    "**Definition:** Periodic if ∃ $T_0$ such that $x(t)=x(t+T_0)$; else aperiodic."
+)
+st.write("**Quick Tip:** Sinusoids are periodic; decays/ramps are aperiodic.")
+st.write("⚡HACK: For sums of sinusoids, check ratio of frequencies for periodicity (rational = periodic).")
+
+# Energy vs Power type
+st.subheader("1.5 Energy‑Type vs Power‑Type Signals")
+st.write("**Energy:** $E=\int|x|^2dt<∞$. **Power:** $P=\lim\frac1T\int|x|^2dt<∞$." )
+st.write("**Quick Tip:** Periodic signals ⇒ power‐type; pulses/decays ⇒ energy‐type.")
+st.write("⚡HACK: If you need to compute integral, choose appropriate formula (energy vs power) to simplify limits.")
+
+# Section 2: Elementary & Singularity Signals
 st.header("2. Elementary & Singularity Signals")
-st.markdown(
-    """
-| **Signal**              | **Formula**                          | **Property**                                | **Tip**                       |
-|-------------------------|--------------------------------------|---------------------------------------------|-------------------------------|
-| Exponential             | $x(t)=Ae^{at}$                      | Growth if $a>0$, decay if $a<0$             | Sketch smooth curve           |
-| Sinusoid                | $x(t)=A\cos(2\pi f_0t+\phi)$       | Periodic, $T_0=1/f_0$                       | Zero-mean, even-function      |
-| Complex exponential     | $x(t)=A e^{j2\pi f_0t}$             | Single phasor at $+f_0$                     | Real part=cos, Imag=sin       |
-| Impulse (δ)             | $\delta(t)$                          | Area 1; sampling property                  | Picks value at $t_0$          |
-| Step (u)                | $u(t)=\begin{cases}1&t\ge0\\0&t<0\end{cases}$ | Derivative=δ(t)                       | Model causal signals          |
-| Rectangular pulse       | $\mathrm{rect}(t/T)$                | Width $T$, height 1                         | FT ↔ $T\,\mathrm{sinc}(fT)$  |
-| Sinc function           | $\mathrm{sinc}(t)=\frac{\sin(\pi t)}{\pi t}$ | Infinite duration, zeros at integers | FT ↔ $\mathrm{rect}(f)$      |
-"""
-)
-st.markdown(
-    """
-**Key FT Pairs:**  
-$\delta(t)\leftrightarrow1$,  $1\leftrightarrow\delta(f)$,  
-$e^{j2\pi f_0t}\leftrightarrow\delta(f-f_0)$,  
-$\cos(2\pi f_0t)\leftrightarrow\tfrac12[\delta(f-f_0)+\delta(f+f_0)]$,  
-$\mathrm{rect}(t/T)\leftrightarrow T\,\mathrm{sinc}(fT)$,  
-$\mathrm{sinc}(t)\leftrightarrow\mathrm{rect}(f)$  
-"""
-)
 
-# 3. Operations on Signals
+# List of signals
+signals = [
+    ("Exponential", r"x(t)=Ae^{at}", "Growth if a>0; decay if a<0.", "⚡HACK: Use for LTI response tests."),
+    ("Sinusoid", r"x(t)=A\cos(2\pi f_0 t + \phi)", "Periodic, T0=1/f0.", "⚡HACK: Cosine has zero phase if φ=0; sine = ±90°.") ,
+    ("Complex Exponential", r"x(t)=Ae^{j2\pi f_0 t}", "Single spike at f0.", "⚡HACK: Use phasor for summing sinusoids.") ,
+    ("Impulse (δ)", r"\delta(t)", "Area=1, picks x(t0)", "⚡HACK: Convolution with δ shifts function: x*δ = x.") ,
+    ("Step (u)", r"u(t)=\begin{cases}1&t\ge0\\0&t<0\end{cases}", "Derivative=δ(t)", "⚡HACK: Use to build piecewise definitions quickly.") ,
+    ("Rectangular Pulse", r"\mathrm{rect}(t/T)", "Width T; FT ↔ T·sinc(fT)", "⚡HACK: Use to derive sinc shapes in frequency.") ,
+    ("Sinc Function", r"\mathrm{sinc}(t)=\sin(\pi t)/(\pi t)", "FT ↔ rect(f)", "⚡HACK: Ideal low-pass impulse response.")
+]
+for name, formula, note, hack in signals:
+    st.subheader(name)
+    st.latex(formula)
+    st.write(f"**Note:** {note}")
+    st.write(hack)
+
+# Section 3: Operations on Signals
 st.header("3. Operations on Signals")
-st.markdown(
-    """
-1. **Amplitude Scaling:** $y(t)=A\,x(t)$ (vertical stretch by $A$)  
-2. **Time Shifting:** $y(t)=x(t-T)$ (shift right by $T$; left if $T<0$)  
-3. **Time Reversal:** $y(t)=x(-t)$ (mirror at origin)  
-4. **Time Scaling:** $y(t)=x(a\,t)$  
-   - $|a|>1$ compress;  $|a|<1$ expand;  $a<0$ includes flip  
-5. **DT Shifting:** $y[n]=x[n-k]$ (shift by $k$ samples)  
-6. **DT Scaling:** $y[n]=x[k\,n]$ (decimation) or $x[n/k]$ (expansion)  
+ops = [
+    ("Amplitude Scaling", r"y(t)=A\,x(t)", "Vertical stretch by A.", "⚡HACK: Amplitude scaling distributes through convolution.") ,
+    ("Time Shifting", r"y(t)=x(t-T)", "Shift right by T (left if T<0).", "⚡HACK: In frequency domain, introduces phase factor e^{-j2πfT}.") ,
+    ("Time Reversal", r"y(t)=x(-t)", "Mirror around vertical axis.", "⚡HACK: Reversal flips spectrum: X(f)->X(-f).") ,
+    ("Time Scaling", r"y(t)=x(a t)", "Compress if |a|>1; expand if |a|<1; flip if a<0.", "⚡HACK: Frequency domain scaling: X(f)->(1/|a|)X(f/a).") ,
+    ("DT Shifting", r"y[n]=x[n-k]", "Shift by k samples.", "⚡HACK: Multiply X(e^{jω}) by e^{-jωk} in DTFT.") ,
+    ("DT Scaling", r"y[n]=x[k n] or x[n/k]", "Decimation or expansion.", "⚡HACK: Watch for aliasing when decimating.")
+]
+for title, formula, desc, hack in ops:
+    st.subheader(title)
+    st.latex(formula)
+    st.write(f"**Effect:** {desc}")
+    st.write(hack)
 
-**⚡Order:** reversal → scaling → shifting  
-**Example:** $x(-2(t-1))$ → reverse → compress by 2 → shift right by 1  
-"""
-)
+# Section 4: LTI System Properties
+st.header("4. LTI System Properties & Hacks")
+properties = [
+    ("BIBO Stability", r"Bounded input -> bounded output", r"\sum |h[n]|<∞ or ∫|h(t)|dt<∞", "⚡HACK: Check impulse response sum/integral quickly.") ,
+    ("Causality", r"Output depends only on past/present inputs", r"h(t)=0 for t<0", "⚡HACK: In convolution, integrate from 0 to t.") ,
+    ("Memoryless", r"Output depends only on x(t)", r"h(t)=k δ(t)", "⚡HACK: y(t)=k x(t).") ,
+    ("Linearity", r"Superposition holds", r"S[a x1 + b x2] = a y1 + b y2", "⚡HACK: Test with simple impulses.") ,
+    ("Time‑Invariant", r"Shifting input shifts output", r"h(t,τ)=h(t-τ)", "⚡HACK: Compare y1(t) vs y2(t-T).")
+]
+for name, desc, cond, hack in properties:
+    st.subheader(name)
+    st.write(f"**Condition:** {desc}")
+    st.latex(cond)
+    st.write(hack)
 
-# 4. LTI System Properties
-st.header("4. LTI System Properties")
-st.markdown(
-    """
-| **Property**     | **Condition**                          | **Test/Formula**                       |
-|------------------|----------------------------------------|----------------------------------------|
-| BIBO Stability   | Bounded input ⇒ bounded output         | $\sum|h[n]|<\infty$ or $\int|h(t)|dt<\infty$ |
-| Causality        | $h(t)=0$ for $t<0$                    | Output uses only past/present inputs   |
-| Memoryless       | $y(t)$ depends only on $x(t)$          | $h(t)=k\,\delta(t)$ form             |
-| Linearity        | Superposition holds                   | $S\{a x_1+b x_2\}=a S\{x_1\}+b S\{x_2\}$  |
-| Time-Invariance  | $h(t,τ)=h(t-τ)$                       | Shift input → same shift in output     |
-"""
-)
-st.markdown(
-    """
-**System Check Recipe:**  
-1. Check $h(t)$ support $t<0$ → causality.  
-2. Sum/integral of $|h|$ → stability.  
-3. Impulse form → memoryless.  
-4. Test additivity/homogeneity → linearity.  
-5. Shift and compare → time-invariance.  
-"""
-)
+# Section 5: Convolution
+st.header("5. Convolution & Quick Hacks")
+st.write("**CT:** y(t)=∫ x(τ) h(t-τ) dτ  |  **DT:** y[n]=∑ x[m] h[n-m]")
+st.write("**Graphical Steps:** Flip → Shift → Multiply → Sum/Integrate")
+st.write("⚡HACK: Always identify overlapping intervals first to simplify integrals.")
+st.write("⚡HACK: For LTI tests, convolve with δ to retrieve impulse response.")
 
-# 5. Convolution
-st.header("5. Convolution")
-st.markdown(
-    """
-**Continuous:**  
-$$y(t)=\int_{-\infty}^{\infty} x(\tau)\,h(t-\tau)\,d\tau$$
-**Discrete:**  
-$$y[n]=\sum_{m=-\infty}^{\infty} x[m]\,h[n-m]$$
+# Section 6: Fourier Transform & Spectra
+st.header("6. Fourier Transform & Spectral Hacks")
+st.write("**Definition:** X(f)=∫ x(t)e^{-j2πft}dt; x(t)=∫ X(f)e^{j2πft}df")
+st.write("⚡HACK: Use symmetry: real even signals have real even spectra.")
+st.write("⚡HACK: Time shift → linear phase factor.")
+st.write("⚡HACK: Time scaling → frequency scaling by 1/a.")
+st.write("⚡HACK: Multiplication in time → convolution in frequency.")
+st.write("⚡HACK: Convolution in time → multiplication in frequency.")
 
-**⚡Graphical Steps:**  
-1. Flip $h(θ)→h(-θ)$  
-2. Shift $h(-θ)→h(t-θ)$  
-3. Multiply $x(θ)·h(t-θ)$  
-4. Integrate/sum where both nonzero  
+# Section 7: Sampling & Aliasing
+st.header("7. Sampling & Aliasing Hacks")
+st.write("**Model:** x_s(t)=x(t)∑ δ(t-nT_s), T_s=1/f_s")
+st.write("⚡HACK: Always check aliasing: f_s/2 ≥ max freq.")
+st.write("⚡HACK: Use ideal LPF to reconstruct if no aliasing.")
 
-**Tip:** Sketch support bounds to limit integration range.  
-"""
-)
+# Section 8: Amplitude Modulation
+st.header("8. Amplitude Modulation (AM) Hacks")
+st.write("**Time:** x_AM=Ac[1+μm(t)]cos(2πf_c t); μ=(Amax-Amin)/(Amax+Amin)")
+st.write("⚡HACK: Envelope detection works only if μ≤1.")
+st.write("⚡HACK: Sideband bandwidth=2B.")
+st.write("⚡HACK: Compute power distribution: Pc vs Psb.")
+st.write("⚡HACK: For suppressed carrier, multiply by cos then filter.")
 
-# 6. Fourier Transform & Spectra
-st.header("6. Fourier Transform & Spectra")
-st.markdown(
-    """
-### CT Definition  
-$$X(f)=\int_{-\infty}^{\infty} x(t)e^{-j2\pi ft}\,dt, \quad x(t)=\int_{-\infty}^{\infty} X(f)e^{j2\pi ft}\,df$$
-
-### Key Pairs  
-- $\delta(t)\leftrightarrow1$  
-- $1\leftrightarrow\delta(f)$  
-- $e^{j2\pi f_0t}\leftrightarrow\delta(f-f_0)$  
-- $\cos(2\pi f_0t)\leftrightarrow\tfrac12[\delta(f-f_0)+\delta(f+f_0)]$  
-- $\mathrm{rect}(t/T)\leftrightarrow T\,\mathrm{sinc}(fT)$  
-
-### Magnitude & Phase  
-- Cosine → spikes at ±$f_0$, height=$A/2$, phase=0°  
-- Sine → spikes at ±$f_0$, height=$A/2$, phase=+90°/−90°  
-
-**⚡Sketching Trick:** Draw magnitude first, then overlay phase.  
-"""
-)
-
-# 7. Sampling & Aliasing
-st.header("7. Sampling & Aliasing")
-st.markdown(
-    """
-**Sampling Model:**  
-$$x_s(t)=x(t)\sum_n\delta(t-nT_s), \quad T_s=1/f_s$$
-
-**Frequency Domain:**  
-$$X_s(f)=f_s\sum_k X(f - kf_s)$$
-
-**Nyquist:**  
-To avoid aliasing: $$f_s > 2B$$ where $B$ = max signal frequency.  
-
-**⚡Tip:** Ensure $B \le f_s/2$ before sampling.  
-"""
-)
-
-# 8. Amplitude Modulation (AM)
-st.header("8. Amplitude Modulation (AM)")
-st.markdown(
-    """
-### Time-Domain  
-$$x_{AM}(t)=A_c\bigl[1+\mu\,m(t)\bigr]\cos(2\pi f_c t)$$
-- Modulation index $$\mu=\max|k_a m(t)|\,,\quad \mu\le1$$ for no distortion  
-
-### Frequency-Domain  
-Carrier at ±$f_c$, sidebands at $f_c\pm f_m$  
-$$X_{AM}(f)=\frac{A_c}{2}[\delta(f-f_c)+\delta(f+f_c)] + \frac{A_c \mu}{2}[M(f-f_c)+M(f+f_c)]$$  
-- **Bandwidth** = $2B$  
-
-### Power Efficiency  
-- Carrier power: $P_c=A_c^2/2$  
-- Sideband power: $P_{SB}=A_c^2 \mu^2/4$  
-- Efficiency: $$\eta=\frac{2P_{SB}}{P_c+2P_{SB}}=\frac{\mu^2}{2+\mu^2}$$  
-
-**⚡AM Tips**  
-- $$\mu=\frac{A_{max}-A_{min}}{A_{max}+A_{min}}$$ via envelope.  
-- If $\mu>1$, envelope crosses zero → distortion.  
-- Envelope detector recovers $m(t)$ only if $\mu\le1$.  
-"""
-)
-
-st.sidebar.title("Navigation")
-st.sidebar.markdown("Use headings to quickly jump to sections.")
+st.sidebar.title("Jump to Section")
+st.sidebar.markdown("Use headers to navigate quickly.")
