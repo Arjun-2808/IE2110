@@ -1,187 +1,204 @@
 import streamlit as st
-import requests
-from streamlit_lottie import st_lottie
+import pandas as pd
 
-# -------------------------------
-# IE2110 Signals & Systems Review
-# -------------------------------
-# This Streamlit app strictly follows the IE2110 slides content.
-# Only slide material is included—no external topics.
+st.set_page_config(page_title="IE2110: Signals & Systems Revision", layout="wide")
 
-# Load Lottie animation for header flair
-def load_lottie_url(url):
-    r = requests.get(url)
-    return r.json() if r.status_code == 200 else None
+st.title("IE2110: Signals and Systems — Detailed Cheat Sheet & Revision App")
 
-lottie = load_lottie_url(
-    "https://assets2.lottiefiles.com/packages/lf20_zr4ozr87.json"
-)
-
-# App configuration
-st.set_page_config(
-    page_title="IE2110 Master Review",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# Sidebar navigation
-parts = [
-    "Part I: Signals, Systems & Fourier",
-    "Part II: Sampling & Sinusoids",
-    "Part III: Modulation"
-]
-part = st.sidebar.radio("Select Slide Part", parts)
-st.sidebar.markdown("---")
-
-# Title and header animation
-st.title("IE2110: Signals & Systems Master Review")
-if lottie:
-    st_lottie(lottie, height=150)
-
-# Utility to render LaTeX equations
-
-def show_eq(eqs):
-    for eq in eqs:
-        st.latex(eq)
-
-# -------------------------------------------
-# Part I: Signals, Systems & Fourier
-# -------------------------------------------
-if part == "Part I: Signals, Systems & Fourier":
-    st.header(part)
-
-    # 1.1 Classification of Signals
-    st.subheader("1.1 Classification of Signals")
-    st.write(
-        "Classification determines which mathematical tools apply: whether to use Fourier series or transforms, "
-        "and simplifies computations by exploiting symmetry or energy/power properties."
-    )
-    st.markdown("**Types:** Continuous vs Discrete, Deterministic vs Random, Periodic vs Aperiodic, Even vs Odd, Energy vs Power.")
-    show_eq([
-        r"x_e(t)=\frac12\bigl[x(t)+x(-t)\bigr]",
-        r"x_o(t)=\frac12\bigl[x(t)-x(-t)\bigr]",
-        r"E=\int_{-\infty}^{\infty}x^2(t)dt,\quad P=\lim_{T\to\infty}\frac1T\int_{-T/2}^{T/2}x^2(t)dt"
+# --- Section 1: Classification of Signals ---
+with st.expander("1. Classification of Signals (CT vs DT, Even/Odd, Periodic/Aperiodic, Energy/Power)", expanded=False):
+    df1 = pd.DataFrame([
+        {"Property": "Continuous vs Discrete",
+         "Definition": "CT: x(t) defined ∀ real t; DT: x[n] defined on integer n", 
+         "Key-Check": "Argument notation (t vs [n])",
+         "⚡Tip": "t→CT, [n]→DT"},
+        {"Property": "Continuous-Value vs Discrete-Value", 
+         "Definition": "Amplitude ∈ ℝ vs amplitude ∈ finite set", 
+         "Key-Check": "Plot shape (smooth vs steps)", 
+         "⚡Tip": "Shape: continuous curve vs staircase"},
+        {"Property": "Even vs Odd", 
+         "Definition": "Even: x(t)=x(-t); Odd: x(t)=-x(-t)", 
+         "Key-Check": "Test x(t)±x(-t)",
+         "⚡Tip": "Even→sum nonzero, Odd→difference nonzero"},
+        {"Property": "Periodic vs Aperiodic", 
+         "Definition": "∃ T0>0: x(t)=x(t+T0); otherwise aperiodic", 
+         "Key-Check": "Find fundamental period for sinusoids", 
+         "⚡Tip": "Sinusoid→periodic, decays→aperiodic"},
+        {"Property": "Energy-Type vs Power-Type", 
+         "Definition": "Energy E=∫|x|² dt finite vs Power P=lim(1/T)∫|x|² dt finite", 
+         "Key-Check": "Periodic→power, pulses/exponential→energy", 
+         "⚡Tip": "Periodicity⇒power signal"}
     ])
-    st.markdown("**Example 1:** Show $x(t)=t^3\cos^3(10t)$ is odd ⇒ $\int_{-T}^{T}x(t)dt=0$.\n" 
-                "**Solution:** $x(-t)=(-t)^3\cos^3(10(-t))=-t^3\cos^3(10t)=-x(t)$; odd ⇒ integral zero.")
+    st.dataframe(df1)
+    st.markdown(
+        """
+**Examples:**
+- CT sinusoid x(t)=cos(2πf0 t) → periodic, power-type.  
+- Exponential x(t)=e^{-at} → aperiodic, energy-type.  
 
-    # Additional classification examples from slides
-    st.markdown("**Example 2:** Sketch continuous-time signal $x(t)=t$ and discrete-time signal $x[n]=n$.\n" 
-                "These illustrate continuous vs discrete domain.")
-    st.markdown("**Example 3:** Determine if $x[n]=(-1)^n$ is continuous- or discrete-value.\n" 
-                "Answer: Discrete-value since it only takes ±1.")
-
-    # Even/Odd decomposition example
-    st.markdown("**Example 4:** Decompose $x(t)=\cos t + \sin t\cos t$ into even and odd components.\n" 
-                "**Solution:** Use $x_e=(x(t)+x(-t))/2$, $x_o=(x(t)-x(-t))/2$. Simplify to get $x_e=\cos t$, $x_o=\sin t\cos t$." )
-    show_eq([
-        r"x_e(t)=\frac{\cos t+\cos(-t)}{2}=\cos t",
-        r"x_o(t)=\frac{\sin t\cos t-\sin(-t)\cos(-t)}{2}=\sin t\cos t"
-    ])
-
-    # Energy vs Power example
-    st.markdown("**Example 5:** Determine energy and power of $x(t)=A\cos(2\pi f_0 t)$.\n" 
-                "**Solution:** Energy $E=\int_{-\infty}^{\infty}A^2\cos^2(...)dt=\infty$ (periodic ⇒ infinite energy).\n" 
-                "Power $P=\lim_{T\to\infty}\frac1T\int_{-T/2}^{T/2}A^2\cos^2(...)dt=A^2/2$." )
-
-    # 1.2 Elementary & Singularity Signals
-    st.subheader("1.2 Elementary & Singularity Signals")
-    st.write("Basic building blocks: exponentials, sinusoids, complex exponentials; singularities: delta and step.")
-    st.markdown("**Exponential:** $x(t)=Ae^{at}$ (growth/decay).\n" 
-                "**Sinusoid:** $x(t)=A\cos(2\pi f_0t+\theta)$.\n" 
-                "**Complex exponential:** $Ae^{j(2\pi f_0t+\theta)}$.\n" 
-                "**Delta:** $\delta(t)$ unit area.\n" 
-                "**Step:** $u(t)$ switches at t=0.")
-    show_eq([
-        r"x(t)=Ae^{at}, \quad x(t)=A\cos(2\pi f_0t+\theta)",
-        r"\delta(t):\int_{-\infty}^{\infty}\delta(t)dt=1, \quad u(t)=\begin{cases}1,&t\ge0\\0,&t<0\end{cases}"
-    ])
-    st.markdown("**Example 6:** Represent sampling: $x_s(t)=\sum_{n=-\infty}^{\infty}x(nT)\delta(t-nT)$.")
-
-    # 1.3 Operations on Signals
-    st.subheader("1.3 Operations on Signals")
-    st.write("Time-shifting, scaling, reversal, and amplitude operations modify how a signal is displayed or processed.")
-    show_eq([
-        r"y(t)=x(t-t_0)",
-        r"y(t)=x(at)",
-        r"y(t)=x(-t)",
-        r"y(t)=a\,x(t)"
-    ])
-    st.markdown("**Example 7:** If $y(t)=x(2-t)$, rewrite as $x(-(t-2))$. This is a time reversal followed by a delay of 2 units.")
-
-    # 1.4 System Properties
-    st.subheader("1.4 Properties of Systems")
-    st.write("Key LTI system properties: linearity, time-invariance, causality, and stability.")
-    st.markdown("- **Linearity:** $T\{a x_1 + b x_2\}=aT\{x_1\}+bT\{x_2\}$.\n" 
-                "- **Time-Invariance:** Input shift ⇒ same output shift.\n" 
-                "- **Causality:** Dependence only on present/past.\n" 
-                "- **BIBO Stability:** Bounded input yields bounded output.")
-    st.markdown("**Example 8:** For $y[n]=x[n]+2x[n-1]$, h[n]=[1,2] ⇒ LTI, uses only n,n-1 ⇒ causal. Stable since sum|h[n]|<∞.")
-
-# -------------------------------------------
-# Part II: Sampling & Sinusoids
-# -------------------------------------------
-elif part == "Part II: Sampling & Sinusoids":
-    st.header(part)
-
-    # 2.1 Sampling Theorem & Aliasing
-    st.subheader("2.1 Sampling Theorem & Aliasing")
-    st.write("Sampling at rate $f_s$ yields discrete-time samples x[n]=x(nT).\n" 
-             "To avoid aliasing, f_s>2f_{max}. This ensures no spectral overlap.")
-    show_eq([r"f_s>2f_{\max}\quad(\text{Nyquist criterion})"])
-    st.markdown("**Example 9:** Sampling x(t)=sin(2π10t) at f_s=15Hz. Since f_s<20Hz, the discrete-time frequency alias to 5Hz (|10-15|).")
-
-    # 2.2 Sinusoidal Signals & Phasors
-    st.subheader("2.2 Sinusoidal Signals & Phasor Representation")
-    st.write(
-        "A sinusoid x(t)=A cos(2πf0t+θ) has amplitude A, freq f0, phase θ. "
-        "As a phasor, Ae^{jθ} rotates at f0 in complex plane."
-    )
-    show_eq([
-        r"x(t)=\Re\{Ae^{j(2\pi f_0t+\theta)}\}",
-        r"Ae^{j\theta}=A(\cos\theta+j\sin\theta)"
-    ])
-    st.markdown("**Example 10:** Sum phasors 1∠30° and 2∠-45°. Convert: 1e^{jπ/6}+2e^{-jπ/4}, add, find magnitude and angle.")
-
-# -------------------------------------------
-# Part III: Modulation Techniques
-# -------------------------------------------
-else:
-    st.header(part)
-
-    # 3.1 Amplitude Modulation (AM)
-    st.subheader("3.1 Amplitude Modulation (AM)")
-    st.write(
-        "AM: carrier multiplied by [1+ka m(t)]. Sidebands appear at f_c±f_m."
-    )
-    show_eq([
-        r"x_{AM}(t)=A_c[1+k_a m(t)]\cos(2\pi f_c t)",
-        r"\mu=k_aA_m=\max|k_a m(t)|"
-    ])
-    st.markdown("**Example 11:** Given envelope peak A_{max}=5V and minimum A_{min}=3V, modulation index \mu=(A_{max}-A_{min})/(A_{max}+A_{min})=(5-3)/(5+3)=0.25.")
-    st.markdown("**Example 12:** For m(t)=cos(2πf_mt), expand x_{AM}(t) to show carrier and two sidebands:\n" )
-    st.latex(
-        r"x_{AM}(t)=A_c\cos(2\pi f_c t)+\frac{A_c\mu}{2}\cos(2\pi(f_c+f_m)t)+\frac{A_c\mu}{2}\cos(2\pi(f_c-f_m)t)"
+**Quick Diagnostic Flow:**
+1. Look at argument (t vs n)  
+2. Check amplitude values (continuous vs discrete)  
+3. Test symmetry (x(t) ± x(-t))  
+4. Check periodicity: try candidate T0  
+5. Compute energy or power formula  
+"""
     )
 
-    # 3.2 Frequency & Phase Modulation (FM/PM)
-    st.subheader("3.2 Frequency & Phase Modulation (FM/PM)")
-    st.write(
-        "FM: instantaneous frequency deviates by k_f m(t). PM: instantaneous phase deviates by k_p m(t)."
+# --- Section 2: Elementary & Singularity Signals ---
+with st.expander("2. Elementary & Singularity Signals (Functions & FT Pairs)", expanded=False):
+    signals = [
+        ("Exponential Signal", "x(t)=A e^{at}", "Growth/decay depending on a", "Plot smooth exponential curve"),
+        ("Sinusoidal Signal", "x(t)=A cos(2πf0 t + φ)", "Periodic, T0=1/f0", "Zero-mean, even mapping"),
+        ("Complex Exponential", "x(t)=A e^{j2πf0 t}", "Rotating phasor", "Real part=cos, Imag=sin"),
+        ("Impulse (δ)", "δ(t)", "Area=1, picks x(t0)", "Sampling property"),
+        ("Unit Step (u)", "u(t)=1[t≥0]", "Derivative=δ(t)", "Define causal signals"),
+        ("Signum", "sgn(t)", "Sign of t", "Odd function test"),
+        ("Rectangular Pulse", "rect(t/T)", "Width T, height 1", "FT→T·sinc(fT)"),
+        ("Sinc Function", "sinc(t)=sin(πt)/(πt)", "Infinite duration, zero crossings at integers", "FT→rect(f)")
+    ]
+    df2 = pd.DataFrame(signals, columns=["Signal","Formula","Property","⚡Revision Tip"])
+    st.dataframe(df2)
+    st.markdown(
+        """
+**Fourier Transform Pairs to Remember:**  
+- δ(t) ↔ 1  
+- 1 ↔ δ(f)  
+- rect(t/T) ↔ T·sinc(fT)  
+- sinc(t) ↔ rect(f)  
+- e^{j2πf0 t} ↔ δ(f−f0)  
+- cos(2πf0 t) ↔ ½[δ(f−f0)+δ(f+f0)]  
+- sin(2πf0 t) ↔ (1/2j)[δ(f−f0)−δ(f+f0)]  
+"""
     )
-    show_eq([
-        r"x_{FM}(t)=\cos\bigl(2\pi f_c t + k_f\int m(τ)dτ\bigr)",
-        r"x_{PM}(t)=\cos\bigl(2\pi f_c t + k_p m(t)\bigr)"
-    ])
-    st.markdown("**Example 13:** For m(t)=sin(2πf_mt), instantaneous frequency = f_c + (k_f/2π)sin(2πf_mt).  ")
 
-    # 3.3 Envelope Detector
-    st.subheader("3.3 Envelope Detector for AM")
-    st.write(
-        "Circuit uses diode + RC. Diode charges capacitor at peaks; resistor discharges between. "
-        "Output approximates envelope if RC time constant >> 1/f_c but << 1/f_m."
+# --- Section 3: Operations on Signals ---
+with st.expander("3. Signal Operations (Time & Amplitude Manipulations)", expanded=False):
+    ops = [
+        ("Amplitude Scaling", "y(t)=A·x(t)", "Vertical stretch/compress"),
+        ("Time Shifting", "y(t)=x(t−T)", "Shift right by T, left if T<0"),
+        ("Time Reversal", "y(t)=x(−t)", "Mirror at origin"),
+        ("Time Scaling", "y(t)=x(a·t)", "Compress if |a|>1, expand if |a|<1, flip if a<0"),
+        ("Time Shifting DT", "y[n]=x[n−k]", "Shift sequence by k samples"),
+        ("Time Scaling DT", "y[n]=x[k·n] or x[n/k]", "Decimation or interpolation")
+    ]
+    df3 = pd.DataFrame(ops, columns=["Operation","Formula","Effect"])
+    st.dataframe(df3)
+    st.markdown(
+        """
+**⚡Order of Operations:** Always perform **time reversal → scaling → shifting** to avoid confusion.  
+
+**Example:** y(t)=x(−2(t−1)) = reverse → compress by 2 → shift right by 1.  
+"""
     )
-    st.image(
-        "https://upload.wikimedia.org/wikipedia/commons/3/3c/Envelope_detector_circuit.svg",
-        use_column_width=True
+
+# --- Section 4: LTI System Properties ---
+with st.expander("4. System Properties (LTI Basics)", expanded=False):
+    props = [
+        ("BIBO Stability", "Bounded input→bounded output", "∑|h[n]|<∞ or ∫|h(t)|dt<∞"),
+        ("Causality", "h(t)=0 for t<0", "Output only depends on past/present") ,
+        ("Memoryless", "y(t) depends only on x(t)", "h(t)=k·δ(t) form"),
+        ("Linearity", "Superposition: S(ax1+bx2)=aS(x1)+bS(x2)", "Test additivity & homogeneity"),
+        ("Time-Invariance", "h(t,τ)=h(t−τ)", "Response unchanged over shifts")
+    ]
+    df4 = pd.DataFrame(props, columns=["Property","Condition","Test Formula"])
+    st.dataframe(df4)
+    st.markdown(
+        """
+**⚡System Diagnostic Recipe:**  
+1. Check h(t) support for t<0 → causality.  
+2. Sum of absolute h(t) → stability.  
+3. Form of h(t) (δ-scale) → memoryless.  
+4. Superposition on sample inputs → linearity.  
+5. Shift inputs and compare outputs → T-invariance.  
+"""
     )
+
+# --- Section 5: Convolution ---
+with st.expander("5. Convolution (Graphical & Algebraic)", expanded=False):
+    st.markdown(
+        """
+**Continuous Convolution:**  
+\[y(t)=\int_{-\infty}^{\infty} x(τ)·h(t−τ) dτ\]  
+**Discrete Convolution:**  
+\[y[n]=\sum_{m=-\infty}^{\infty} x[m]·h[n−m]\]  
+
+**⚡Graphical Steps:**  
+1. Flip h(θ)→h(−θ).  
+2. Shift: h(−θ)→h(t−θ).  
+3. Multiply x(θ)·h(t−θ).  
+4. Integrate/sum over θ where both non-zero.  
+
+**Tip:** Sketch support intervals first to limit integration range.  
+"""
+    )
+
+# --- Section 6: Fourier Transform & Spectra ---
+with st.expander("6. Fourier Transform & Spectral Sketching", expanded=False):
+    st.markdown(
+        """
+### Definition (CT)
+\[X(f)=\int_{-\infty}^{\infty} x(t)e^{-j2πft}dt\],  
+\[x(t)=\int_{-\infty}^{\infty} X(f)e^{j2πft}df\]
+
+### Key Transform Pairs:
+- δ(t) ↔ 1  
+- 1 ↔ δ(f)  
+- e^{j2πf0t} ↔ δ(f−f0)  
+- cos(2πf0t) ↔ ½[δ(f−f0)+δ(f+f0)]  
+- sin(2πf0t) ↔ 1/(2j)[δ(f−f0)−δ(f+f0)]  
+- rect(t/T) ↔ T·sinc(fT)  
+- sinc(t) ↔ rect(f)
+
+### Magnitude & Phase:
+- Cosine: spikes at ±f0, height=A/2, phase=0°  
+- Sine: spikes at ±f0, height=A/2, phase=+90° at +f0, −90° at −f0
+
+**⚡Sketching Trick:** Always draw magnitude first, then overlay phase.  
+"""
+    )
+
+# --- Section 7: Sampling Theory ---
+with st.expander("7. Sampling & Aliasing", expanded=False):
+    st.markdown(
+        """
+**Sampling Model:**  
+\[x_s(t)=x(t)·\sum_{n}δ(t−nTs),\quad Ts=1/fs\]  
+
+**Frequency Domain:**  
+\[X_s(f)=f_s\sum_k X(f−kf_s)\]  
+
+**Nyquist Criterion:**  
+To avoid aliasing: \[f_s>2B\], where B=max signal freq.  
+
+**⚡Tip:** Always check highest frequency in X(f) against fs/2.  
+"""
+    )
+
+# --- Section 8: Amplitude Modulation ---
+with st.expander("8. Amplitude Modulation (Time & Frequency)", expanded=False):
+    st.markdown(
+        """
+### Time-Domain AM:
+\[x_{AM}(t)=A_c[1+μm(t)] cos(2πf_c t)\]
+- μ (modulation index)=max|ka m(t)| → under-modulation μ≤1, over-modulation μ>1
+
+### Frequency-Domain:
+Carrier at ±f_c plus sidebands from f_c−B to f_c+B  
+\[X_{AM}(f)=\frac{A_c}{2}[δ(f−f_c)+δ(f+f_c)] + \frac{A_c μ}{2}[M(f−f_c)+M(f+f_c)]\]
+- **Bandwidth**=2B
+
+### Power Calculations:
+- Carrier power Pc= A_c^2/2  
+- Sideband power Ps= (A_c^2 μ^2)/4 (in each sideband)  
+- Efficiency η=Ps_total/(Pc+Ps_total)=μ^2/(2+μ^2)
+
+**⚡AM Tips:**
+- Compute μ via envelope: (Amax−Amin)/(Amax+Amin).  
+- If μ>1 the envelope crosses zero → distortion & phase reversal.  
+- Envelope detector recovers m(t) only if μ≤1.  
+"""
+    )
+
+st.sidebar.title("Navigation")
+st.sidebar.markdown("Use the sections to expand/collapse topics for deep revision.")
