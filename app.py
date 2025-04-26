@@ -1,218 +1,134 @@
 import streamlit as st
 
-# Page configuration
-st.set_page_config(page_title="IE2110 Revision Cheat Sheet", layout="wide")
+"""
+IE2110 – **Exam‑Focused** Cheat‑Sheet (Streamlit)
+================================================
+Only the high‑value tricks you actually need for the paper – no fluffy “what is
+an exponential” notes.  Each tab holds:
+• 🔑 Core formula / method  • ⚡ Quick hack  • 🛠️ Worked example.
+Built for Streamlit ≥1.30; uses only `st.latex`, no extra packages.
+"""
 
-# Title
-st.title("IE2110: Signals & Systems — Revision Cheat Sheet & Hacks")
+st.set_page_config(page_title="IE2110 Exam Hacks", layout="wide")
 
-# Table of Contents
-st.markdown("""
-**Contents**  
-1. Classification of Signals  
-2. Elementary & Singularity Signals  
-3. Operations on Signals  
-4. LTI System Properties  
-5. Convolution  
-6. Fourier Transform & Spectra  
-7. Sampling & Aliasing  
-8. Amplitude Modulation  
-""")
+st.title("IE2110 · Signals & Systems — Last‑Minute Exam Hacks")
 
-# 1. Classification of Signals
-st.header("1. Classification of Signals")
+page = st.sidebar.radio(
+    "Select topic",
+    [
+        "1. Convolution Sketching",
+        "2. Fourier Magnitude & Phase",
+        "3. Sampling & Aliasing",
+        "4. LTI System Quick Tests",
+        "5. Amplitude Modulation"
+    ],
+)
 
-st.subheader("1.1 Continuous vs Discrete Signals")
-st.markdown("""
-**Definition:** A continuous-time signal is $x(t)$ for real $t$.  
-A discrete-time signal is $x[n]$ for integer $n$.  
+hr = "<hr style='margin:1em 0'>"
 
-$$x(t)\quad\text{vs}\quad x[n]$$
+# ───────────────────────────────── 1 — Convolution
+if page.startswith("1"):
+    st.header("1. Convolution — Draw in Seconds")
 
-⚡ Quick Tip: spot `t` vs `[n]`.  
-""")
+    st.latex(r"y(t)=\int_{-\infty}^{\infty}x(\tau)h(t-\tau)\,d\tau")
 
-st.subheader("1.2 Continuous-Value vs Discrete-Value Signals")
-st.markdown("""
-**Definition:** Continuous-value signal amplitudes lie in $\mathbb{R}$.  
-Discrete-value amplitudes take values from a finite set.  
+    st.markdown(r"""### 🔑 Core Idea
+Flip‐then‐shift method; overlap area drives output.
+""", unsafe_allow_html=True)
 
-⚡ Quick Tip: smooth curve vs staircase plot.  
-""")
+    st.markdown(r"""### ⚡ Speed Hack
+1. Pre‑label **supports** (non‑zero spans) of x and h.  
+2. Compute start and end of overlap only – the shape inside rarely matters:  
+&nbsp;&nbsp;`t_start = start_x + start_h`  
+&nbsp;&nbsp;`t_end   = end_x + end_h`.  
+3. For simple rectangles/triangles integrate **area = base × height** instead of full integral.
+""", unsafe_allow_html=True)
 
-st.subheader("1.3 Even vs Odd Signals")
-st.markdown("""
-**Even:** $x(t) = x(-t)$.  **Odd:** $x(t) = -x(-t)$.  
+    st.markdown(r"""### 🛠️ Example (2019 Q3c)
+Rect pulse width 2 s convolved with itself.
+*Support* 0–2 s ⇒ overlap length = \(L(t)=\max(0,2-|t-2|)\). Result is triangle of base 4 s and peak 2 s.
+""", unsafe_allow_html=True)
 
-$$x_e(t)=\frac{1}{2}[x(t)+x(-t)],\quad x_o(t)=\frac{1}{2}[x(t)-x(-t)]$$
+# ───────────────────────────────── 2 — Fourier
+elif page.startswith("2"):
+    st.header("2. Fourier — Magnitude & Phase in One Look")
 
-⚡ Hack: any odd-signal integral over symmetric limits is zero.  
-""")
+    st.latex(r"X(f)=\int x(t)\,e^{-j2\pi f t} dt")
 
-st.subheader("1.4 Periodic vs Aperiodic Signals")
-st.markdown("""
-**Periodic:** there exists $T_0>0$ such that $x(t)=x(t+T_0)$.  
-**Aperiodic:** no finite $T_0$ satisfies this.  
+    st.markdown(r"""### 🔑 Core Rules
+* Even real ⇒ X is real & even (phase 0 or π).  
+* Odd real  ⇒ X is imag & odd (phase ±π/2).  
+* Time‑shift T ⇒ linear phase  \(-2\pi f T\).
+""", unsafe_allow_html=True)
 
-⚡ Quick Tip: pure sinusoids are periodic; decaying exponentials are aperiodic.  
-""")
+    st.markdown(r"""### ⚡ Sketch Hack
+1. Decompose signal into scaled/shifted **rect** & **tri** pieces; use table of transforms.  
+2. Plot impulses for periodic lines, lobe shape for sinc.
+""", unsafe_allow_html=True)
 
-st.subheader("1.5 Energy-Type vs Power-Type Signals")
-st.markdown("""
-**Energy:** $$E=\int_{-\infty}^{\infty}|x(t)|^2\,dt < \infty.$$  
-**Power:** $$P=\lim_{T\to\infty}\frac{1}{T}\int_{-T/2}^{T/2}|x(t)|^2\,dt < \infty.$$  
+    st.markdown(r"""### 🛠️ Example (Sample Paper Q2b)
+Signal  $$x(t)=\operatorname{rect}(t/2)+\operatorname{rect}((t-3)/2).$$  Two identical rects: spectrum is
+$$X(f)=2\,\operatorname{sinc}(2f)\,e^{-j3\pi f}\cos(3\pi f).$$  Magnitude = $|2\,\operatorname{sinc}(2f)|$; phase is π‑step from the exponential.
+""", unsafe_allow_html=True)
 
-⚡ Quick Tip: periodic signals ⇒ power-type; pulses/exponentials ⇒ energy-type.  
-""")
+# ───────────────────────────────── 3 — Sampling
+elif page.startswith("3"):
+    st.header("3. Sampling & Aliasing")
 
-# 2. Elementary & Singularity Signals
-st.header("2. Elementary & Singularity Signals")
+    st.latex(r"x_s(t)=x(t)\sum_{n=-\infty}^{\infty}\!\delta(t-nT_s)\,,\qquad f_s=1/T_s")
 
-st.subheader("2.1 Exponential Signal")
-st.markdown("""
-**Formula:** $$x(t)=A e^{a t}$$  
-⚡ Hack: appears in LTI homogeneous solution.  
-""")
+    st.markdown(r"""### 🔑 Spectrum Replication
+$$X_s(f)=\frac{1}{T_s}\sum_{k=-\infty}^{\infty} X(f-kf_s).$$  Aliasing if replicas overlap.
+""", unsafe_allow_html=True)
 
-st.subheader("2.2 Sinusoidal Signal")
-st.markdown("""
-**Formula:** $$x(t)=A \cos(2\pi f_0 t + \phi)$$  
-Periodic with period $T_0=1/f_0$.  
-⚡ Hack: cosine is even, sine is odd (±90° phase).  
-""")
+    st.markdown(r"""### ⚡ Minimum f_s Hack
+Always choose $f_s \ge 2B$ (Nyquist).  For exam, quote “anti‑alias LPF width B”.
+""", unsafe_allow_html=True)
 
-st.subheader("2.3 Complex Exponential Signal")
-st.markdown("""
-**Formula:** $$x(t)=A e^{j2\pi f_0 t}$$  
-Represents a single spectral line at $f_0$.  
-⚡ Hack: use phasors for sinusoid sums.  
-""")
+    st.markdown(r"""### 🛠️ Example (2022 Q4)
+Low‑pass  B = 5 kHz.  Choose \$f_s=12\text{ kHz}\$. Show sketch: main lobe −5…5 kHz, replicas at ±12 kHz.
+""", unsafe_allow_html=True)
 
-st.subheader("2.4 Impulse Function")
-st.markdown("""
-**Formula:** $$\delta(t)$$  
-Area = 1; sampling: $$x(t)*\delta(t-t_0)=x(t_0).$$  
-⚡ Hack: convolution with δ shifts the argument.  
-""")
+# ───────────────────────────────── 4 — LTI Quick Tests
+elif page.startswith("4"):
+    st.header("4. LTI System Quick Tests")
 
-st.subheader("2.5 Step Function")
-st.markdown("""
-**Formula:** $$u(t)=\begin{cases}1, & t\ge0\\0, & t<0\end{cases}$$  
-Derivative = δ(t).  
-⚡ Hack: use u(t) to gate signals in integrals.  
-""")
+    st.markdown(r"""### 🔑 Check List
+* **Linearity**  → superposition with two δ inputs.  
+* **Time‑invariance**  → replace \(t\to t-t_0\) and compare.  
+* **BIBO stable**     → CT: \(\int |h(t)|dt\lt\infty\);  DT: Σ|h[n]|<∞.  
+* **Causal**          → h(t)=0 for t<0.
+""", unsafe_allow_html=True)
 
-st.subheader("2.6 Rectangular Pulse")
-st.markdown("""
-**Formula:** $$\mathrm{rect}\bigl(\frac{t}{T}\bigr)$$  
-Width $T$, FT ↔ $T\,\mathrm{sinc}(fT)$.  
-⚡ Hack: ideal LPF impulse in time domain.  
-""")
+    st.markdown(r"""### ⚡ Memoryless Hack
+If output depends **only** on present input: h(t)=k δ(t). Any delay term means memory.
+""", unsafe_allow_html=True)
 
-st.subheader("2.7 Sinc Function")
-st.markdown("""
-**Formula:** $$\mathrm{sinc}(t)=\frac{\sin(\pi t)}{\pi t}$$  
-Zeros at nonzero integers; FT ↔ rect(f).  
-⚡ Hack: ideal interpolation kernel.  
-""")
+    st.markdown(r"""### 🛠️ Example (Past paper Q1d)
+System:  $$y(t)=x(t)+3x(t-2).$$  Test:
+* Linear ✓ (sum of scaled inputs)
+* Time‑variant ✗?  shift test shows **causal** (t<0 section zero), **not memoryless** (depends on past).
+""", unsafe_allow_html=True)
 
-# 3. Operations on Signals
-st.header("3. Operations on Signals")
+# ───────────────────────────────── 5 — AM
+else:
+    st.header("5. Amplitude Modulation (DSB‑TC)")
 
-st.markdown("""
-**Amplitude Scaling**  
-$$y(t)=A\,x(t)$$  
-⚡ Hack: multiplies convolution output by A.  
+    st.latex(r"x_{AM}(t)=[1+\mu m(t)]\cos(2\pi f_c t)\,,\qquad \mu=k_a m_{max}")
 
-**Time Shifting**  
-$$y(t)=x(t-T)$$  
-⚡ Hack: in freq domain, multiply X(f) by $e^{-j2\pi fT}$.  
+    st.markdown(r"""### 🔑 Spectrum Layout
+Carrier at ±f_c (power $$P_C=A^2/2R$$) and sidebands at f_c±f_m.  Bandwidth = 2B.
+""", unsafe_allow_html=True)
 
-**Time Reversal**  
-$$y(t)=x(-t)$$  
-⚡ Hack: flips spectrum: $X(f)\to X(-f)$.  
+    st.markdown(r"""### ⚡ Efficiency Hack
+Maximum power transfer at μ = 1 ⇒ efficiency 33.3 %.  Anything higher ⇒ over‑modulation (envelope crosses zero).
+""", unsafe_allow_html=True)
 
-**Time Scaling**  
-$$y(t)=x(a t)$$  
-⚡ Hack: freq scales: $X(f)\to \frac{1}{|a|}X(\frac{f}{a})$.  
+    st.markdown(r"""### 🛠️ Example (Exam Q3)
+Message \$m(t)=0.6\cos(2\pi1\,\text{kHz} t)\$, carrier 100 kHz.
+* μ = 0.6 < 1 (safe).  Output frequencies: 100 kHz carrier + sidebands 99 kHz and 101 kHz.
+* Draw magnitude: carrier spike height \$A/2\$; each sideband \$0.3A/2\$.
+""", unsafe_allow_html=True)
 
-**DT Shift**  
-$$y[n]=x[n-k]$$  
 
-**DT Scale**  
-$$y[n]=x[k n]\quad\text{(decimate)},\quad y[n]=x[n/k]\text{(expand)}$$  
-""")
-
-# 4. LTI System Properties
-st.header("4. LTI System Properties")
-
-st.markdown("""
-**BIBO Stability**: bounded input ⇒ bounded output if  
-$$\sum_{n=-\infty}^{\infty}|h[n]|<\infty\quad\text{or}\quad\int_{-\infty}^{\infty}|h(t)|dt<\infty.$$  
-
-**Causality**:  $$h(t)=0 \text{ for } t<0.$$  
-
-**Memoryless**:  $$h(t)=k\,\delta(t).$$  
-
-**Linearity**: superposition holds.  
-
-**Time-Invariance**: shift input ⇒ shift output.  
-""")
-
-# 5. Convolution
-st.header("5. Convolution")
-
-st.markdown("""
-**Continuous:**  
-$$y(t)=\int_{-\infty}^{\infty}x(\tau)\,h(t-\tau)\,d\tau$$
-
-**Discrete:**  
-$$y[n]=\sum_{m=-\infty}^{\infty}x[m]\,h[n-m]$$
-
-⚡ Hack: find overlap region first, then multiply & integrate.  
-""")
-
-# 6. Fourier Transform & Spectra
-st.header("6. Fourier Transform & Spectra")
-
-st.markdown("""
-**Definition (CT):**  
-$$X(f)=\int_{-\infty}^{\infty}x(t)e^{-j2\pi ft}dt,\quad x(t)=\int_{-\infty}^{\infty}X(f)e^{j2\pi ft}df$$
-
-**Key Pairs:**  
-- $\delta(t)\leftrightarrow1$  
-- $1\leftrightarrow\delta(f)$  
-- $e^{j2\pi f_0t}\leftrightarrow\delta(f-f_0)$  
-- $\cos(2\pi f_0t)\leftrightarrow\tfrac12[\delta(f-f_0)+\delta(f+f_0)]$  
-- $\mathrm{rect}(t/T)\leftrightarrow T\,\mathrm{sinc}(fT)$  
-
-⚡ Hacks: time shift→phase; scale→freq scale; mult→conv.  
-""")
-
-# 7. Sampling & Aliasing
-st.header("7. Sampling & Aliasing")
-
-st.markdown("""
-**Model:**  
-$$x_s(t)=x(t)\sum_{n}\delta(t-nT_s),\quad T_s=1/f_s$$
-
-**Spectrum:**  
-$$X_s(f)=f_s\sum_{k}X(f-kf_s)$$
-
-⚡ Hack: ensure $f_s/2\ge f_{\max}$ to avoid aliasing.  
-""")
-
-# 8. Amplitude Modulation
-st.header("8. Amplitude Modulation")
-
-st.markdown("""
-**Time-Domain:**  
-$$x_{AM}(t)=A_c[1+\mu m(t)]\cos(2\pi f_c t),\quad \mu=\frac{A_{max}-A_{min}}{A_{max}+A_{min}}\le1$$
-
-**Freq-Domain:** carrier at ±f_c; sidebands at f_c±f_m; BW=2B.  
-
-**Power:**  
-$$P_c=\frac{A_c^2}{2},\quad P_{SB}=\frac{A_c^2\mu^2}{4},\quad\eta=\frac{\mu^2}{2+\mu^2}$$
-
-⚡ Hacks: envelope detects if μ≤1; compute Pc,Psb from Amax,Amin.  
-""" )
+st.sidebar.info("Good luck – nail the paper!")
